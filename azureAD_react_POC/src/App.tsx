@@ -2,47 +2,48 @@ import reactLogo from './assets/react.svg'
 import './App.css'
 import { PublicClientApplication } from '@azure/msal-browser'
 import { msalConfig } from './auth-config'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const msalInstance = new PublicClientApplication(msalConfig);
 const App = () => {
-  const [userName, setUserName] = useState('');
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  
+  const logout =async () => {
+   await msalInstance.initialize()
+		try {
+			await msalInstance.loginRedirect();
+			setLoggedIn(false);
+		} catch (error) {
+      console.error("Logout failed", error);
+		}
+	};
+  
+  const userData = getUserData();
 
-  const login = async () => {
-    try {
-      setIsLoggingIn(true);
-      await msalInstance.initialize();
-      const loginResult = await msalInstance.loginPopup({
-        scopes: msalConfig.scope,
-        prompt: 'select_account' //
-      });
-      setUserName(loginResult.account.name || '');
+  useEffect(() => {
+    if (userData?.name) {
       setLoggedIn(true);
-      console.log(loginResult);
-    } catch (error) {
-      console.error('Login failed', error);
-    } finally {
-      setIsLoggingIn(false);
     }
+  }, [userData]);
 
-  }   
+  function redirectToUserFlow() {
+		// Replace the placeholder URL with your actual user flow URL
+		const userFlowUrl =
+			"https://shubhroPOC.b2clogin.com/shubhroPOC.onmicrosoft.com/oauth2/v2.0/authorize?p=B2C_1_POC_react&client_id=b0c6526a-68c7-4b61-91df-aa057da8a63a&nonce=defaultNonce&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2F&scope=openid&response_type=id_token&prompt=login";
 
-  const logout = async () => {
-    try {
-      await msalInstance.logout();
-      setUserName('');
-      setLoggedIn(false);
-    } catch (error) {
-      console.error('Logout failed', error);
-    }
-  }
-
-  return (
+		window.location.href = userFlowUrl;
+	}
+  
+	return (
 		<>
 			<div>
-				{loggedIn ? <h2>Hey, {userName}</h2> : <></>}
+				{loggedIn ? (
+					<h2>
+						Hey, {userData.name} ({userData.jobTitle})
+					</h2>
+				) : (
+					<></>
+				)}
 				<a
 					href="https://learn.microsoft.com/en-us/azure/active-directory-b2c/"
 					target="_blank"
@@ -59,15 +60,8 @@ const App = () => {
 			</div>
 			<h1>Exploring Azure AD</h1>
 			<div className="card">
-				<button onClick={() => (!loggedIn ? login() : logout())}>
-					{isLoggingIn ? <h2>Logging in...</h2> : <></>}
-					{!loggedIn && !isLoggingIn ? (
-						<h2>Login using MSAL</h2>
-					) : !isLoggingIn ? (
-						<h2>Log out</h2>
-					) : (
-						<></>
-					)}
+				<button onClick={() => (loggedIn ? logout() : redirectToUserFlow())}>
+					{!loggedIn ? <h2>Login using MSAL</h2> : <h2>Log out</h2>}
 				</button>
 				{/* <p>
           Edit <code>src/App.tsx</code> and save to test HMR
@@ -78,6 +72,25 @@ const App = () => {
       </p> */}
 		</>
 	);
-}
+};
 
 export default App
+
+const getUserData = () => {
+  const idToken = getIdTokenFromUrl();
+  console.log("idToken", idToken);
+  try {
+    if (idToken) {
+      const idTokenPayload = JSON.parse(atob(idToken.split('.')[1]));
+      console.log("idTokenPayload", idTokenPayload);
+      return idTokenPayload;
+    }
+  } catch {
+    return null
+  }
+  function getIdTokenFromUrl() {
+    const url = new URL(window.location.href);
+    const idToken = url.hash.substring(1); // Remove the '#' from the hash
+    return idToken;
+  }
+}

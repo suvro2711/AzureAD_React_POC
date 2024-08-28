@@ -1,6 +1,6 @@
 export const msalConfig = {
 	auth: {
-		clientId: "09f8a17f-5f64-4367-b50c-53f6cd6fafcb",
+		clientId: "b0c6526a-68c7-4b61-91df-aa057da8a63a",
 		// authority: "https://login.microsoftonline.com/common/", // For multi-tenant applications
 		authority: "https://login.microsoftonline.com/shubhroPOC.onmicrosoft.com", // For single-tenant applications
 		redirectUri: "http://localhost:5173", // Replace with your actual redirect URI
