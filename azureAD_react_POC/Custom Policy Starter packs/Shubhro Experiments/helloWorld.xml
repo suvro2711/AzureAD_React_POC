@@ -4,27 +4,25 @@
       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
       xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
       PolicySchemaVersion="0.3.0.0"
-      TenantId="yourtenant.onmicrosoft.com"
+      TenantId="shubhroPOC.onmicrosoft.com"
       PolicyId="B2C_1A_Helloworld"
-      PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_Helloworld">
+      PublicPolicyUri="http://shubhroPOC.onmicrosoft.com/B2C_1A_Helloworld">
 
-        <BuildingBlocks>
-            <!-- Building Blocks Here-->
-        </BuildingBlocks>
 
         <ClaimsProviders>
-            <!-- Claims Providers Here-->
+            <ClaimsProvider>
+                <!-- The technical profile(s) defined in this section is required by the framework to be included in all policies. -->
+                <DisplayName>Trustframework Policy Engine TechnicalProfiles</DisplayName>
+                <TechnicalProfiles>
+                <TechnicalProfile Id="TpEngine_c3bd4fe2-1775-4013-b91d-35f16d377d13">
+                    <DisplayName>Trustframework Policy Engine Default Technical Profile</DisplayName>
+                    <Protocol Name="None" />
+                    <Metadata>
+                    <Item Key="url">{service:te}</Item>
+                    </Metadata>
+                </TechnicalProfile>
+                </TechnicalProfiles>
+            </ClaimsProvider>
         </ClaimsProviders>
 
-        <UserJourneys>
-            <!-- User Journeys Here-->
-        </UserJourneys>
-
-        <RelyingParty>
-            <!-- 
-                Relying Party Here that's your policy’s entry point
-                Specify the User Journey to execute 
-                Specify the claims to include in the token that is returned when the policy runs
-            -->
-        </RelyingParty>
     </TrustFrameworkPolicy>
