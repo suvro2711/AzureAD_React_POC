@@ -6,23 +6,82 @@
       PolicySchemaVersion="0.3.0.0"
       TenantId="shubhroPOC.onmicrosoft.com"
       PolicyId="B2C_1A_Helloworld"
-      PublicPolicyUri="http://shubhroPOC.onmicrosoft.com/B2C_1A_Helloworld">
+      PublicPolicyUri="http://shubhroPOC.onmicrosoft.com/B2C_1A_Helloworld"
+>
 
+  <BuildingBlocks>
+    <ClaimsSchema>
+      <ClaimType Id="objectId">
+        <DataType>string</DataType>
+      </ClaimType>
+      
+      <ClaimType Id="message">
+        <DataType>string</DataType>
+      </ClaimType>
+    </ClaimsSchema>
+  </BuildingBlocks>
 
-        <ClaimsProviders>
-            <ClaimsProvider>
-                <!-- The technical profile(s) defined in this section is required by the framework to be included in all policies. -->
-                <DisplayName>Trustframework Policy Engine TechnicalProfiles</DisplayName>
-                <TechnicalProfiles>
-                <TechnicalProfile Id="TpEngine_c3bd4fe2-1775-4013-b91d-35f16d377d13">
-                    <DisplayName>Trustframework Policy Engine Default Technical Profile</DisplayName>
-                    <Protocol Name="None" />
-                    <Metadata>
-                    <Item Key="url">{service:te}</Item>
-                    </Metadata>
-                </TechnicalProfile>
-                </TechnicalProfiles>
-            </ClaimsProvider>
-        </ClaimsProviders>
+  <ClaimsProviders>
+    <ClaimsProvider>
+      <!-- The technical profile(s) defined in this section is required by the framework to be included in all policies. -->
+      <DisplayName>Trustframework Policy Engine TechnicalProfiles</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="TpEngine_c3bd4fe2-1775-4013-b91d-35f16d377d13">
+          <DisplayName>Trustframework Policy Engine Default Technical Profile</DisplayName>
+          <Protocol Name="None" />
+          <Metadata>
+            <Item Key="url">{service:te}</Item>
+          </Metadata>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <!-- 
+      The technical profile(s) defined in this section specify Token Issuers that are used by the required SendClaims step of a User Journey 
+      to return a token to the caller.
+      -->
+      <DisplayName>Token Issuer Technical Profiles</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="JwtIssuer">
+          <DisplayName>JWT Issuer</DisplayName>
+          <Protocol Name="None" />
+          <OutputTokenFormat>JWT</OutputTokenFormat>
+          <Metadata>
+            <Item Key="client_id">{service:te}</Item>
+            <Item Key="issuer_refresh_token_user_identity_claim_type">objectId</Item>
+            <Item Key="SendTokenResponseBodyWithJsonNumbers">true</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+            <Key Id="issuer_refresh_token_key" StorageReferenceId="B2C_1A_TokenEncryptionKeyContainer" />
+          </CryptographicKeys>
+          <InputClaims />
+          <OutputClaims />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider> 
+  </ClaimsProviders>
+
+  <UserJourneys>
+    <UserJourney Id="HelloWorldJourney">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+      </OrchestrationSteps>
+    </UserJourney>
+  </UserJourneys>
+
+  <RelyingParty>
+    <DefaultUserJourney ReferenceId="HelloWorldJourney"/>
+    <TechnicalProfile Id="HelloWorldPolicyProfile">
+      <DisplayName>Hello World Policy Profile</DisplayName>
+      <Protocol Name="OpenIdConnect" />
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" DefaultValue="Hello World Object ID"/>
+        <OutputClaim ClaimTypeReferenceId="message" DefaultValue="Hello World!"/>
+      </OutputClaims>
+      <SubjectNamingInfo ClaimType="sub" />
+    </TechnicalProfile>
+  </RelyingParty>  
 
     </TrustFrameworkPolicy>
