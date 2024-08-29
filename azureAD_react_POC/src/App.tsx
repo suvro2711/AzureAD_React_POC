@@ -22,10 +22,10 @@ const App = () => {
 
   useEffect(() => {
 		if (userData?.message) {
-			const apiWrapper = document.getElementById("apiWrapper");
-			if (apiWrapper?.style) apiWrapper.style.display = "none";
 			setLoggedIn(true);
 		}
+		const apiWrapper = document.getElementById("apiWrapper");
+		if (apiWrapper?.style) apiWrapper.style.display = "none";
 	}, [userData]);
 
 	function redirectToUserFlow() {
