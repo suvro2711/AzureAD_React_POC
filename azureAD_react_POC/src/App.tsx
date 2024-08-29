@@ -31,7 +31,7 @@ const App = () => {
 	function redirectToUserFlow() {
 		// Replace the placeholder URL with your actual user flow URL
 		const userFlowUrl =
-			"https://shubhroPOC.b2clogin.com/shubhroPOC.onmicrosoft.com/oauth2/v2.0/authorize?p=B2C_1A_HELLOWORLD_CUSTOMUI&client_id=b0c6526a-68c7-4b61-91df-aa057da8a63a&nonce=defaultNonce&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2F&scope=openid&response_type=id_token&prompt=login";
+			"https://shubhropoc.b2clogin.com/shubhroPOC.onmicrosoft.com/oauth2/v2.0/authorize?p=B2C_1A_HELLOWORLD_CUSTOMUI&client_id=b0c6526a-68c7-4b61-91df-aa057da8a63a&nonce=defaultNonce&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2F&scope=openid&response_type=id_token&prompt=login";
 
 		window.location.href = userFlowUrl;
 	}
