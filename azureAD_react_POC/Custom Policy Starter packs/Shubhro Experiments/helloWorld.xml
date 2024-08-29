@@ -5,8 +5,8 @@
       xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
       PolicySchemaVersion="0.3.0.0"
       TenantId="shubhroPOC.onmicrosoft.com"
-      PolicyId="B2C_1A_Helloworld"
-      PublicPolicyUri="http://shubhroPOC.onmicrosoft.com/B2C_1A_Helloworld"
+      PolicyId="B2C_1A_Helloworld_UserInput"
+      PublicPolicyUri="http://shubhroPOC.onmicrosoft.com/B2C_1A_Helloworld_UserInput"
 >
 
   <BuildingBlocks>
@@ -18,10 +18,87 @@
       <ClaimType Id="message">
         <DataType>string</DataType>
       </ClaimType>
+
+        <ClaimType Id="givenName">
+            <DisplayName>Full Name</DisplayName>
+            <DataType>string</DataType>
+            <DefaultPartnerClaimTypes>
+                <Protocol Name="OAuth2" PartnerClaimType="given_name" />
+                <Protocol Name="OpenIdConnect" PartnerClaimType="given_name" />
+                <Protocol Name="SAML2" PartnerClaimType="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" />
+            </DefaultPartnerClaimTypes>
+            <UserHelpText>Your given name (also known as full name).</UserHelpText>
+            <UserInputType>TextBox</UserInputType>
+            </ClaimType>
+
+        <ClaimType Id="surname">
+            <DisplayName>Job Title</DisplayName>
+            <DataType>string</DataType>
+            <DefaultPartnerClaimTypes>
+                <Protocol Name="OAuth2" PartnerClaimType="job_title" />
+                <Protocol Name="OpenIdConnect" PartnerClaimType="job_title" />
+                <Protocol Name="SAML2" PartnerClaimType="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/jobTitle" />
+            </DefaultPartnerClaimTypes>
+            <UserHelpText>Your job tile (also known as you designation).</UserHelpText>
+            <UserInputType>TextBox</UserInputType>
+        </ClaimType>
+
+        <ClaimType Id="displayName">
+            <DataType>string</DataType>
+            <DefaultPartnerClaimTypes>
+                <Protocol Name="OAuth2" PartnerClaimType="unique_name" />
+                <Protocol Name="OpenIdConnect" PartnerClaimType="name" />
+                <Protocol Name="SAML2" PartnerClaimType="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name" />
+            </DefaultPartnerClaimTypes>
+        </ClaimType>
+
     </ClaimsSchema>
+    <ClaimsTransformations>
+        <ClaimsTransformation Id="GenerateObjectIdTransformation" TransformationMethod="CreateRandomString">
+            <InputParameters>
+                <InputParameter Id="randomGeneratorType" DataType="string" Value="GUID"/>
+            </InputParameters>
+            <OutputClaims>
+                <OutputClaim ClaimTypeReferenceId="objectId" TransformationClaimType="outputClaim"/>
+            </OutputClaims>
+        </ClaimsTransformation>
+
+        <ClaimsTransformation Id="CreateDisplayNameTransformation" TransformationMethod="FormatStringMultipleClaims">
+            <InputClaims>
+                <InputClaim ClaimTypeReferenceId="givenName" TransformationClaimType="inputClaim1"/>
+                <InputClaim ClaimTypeReferenceId="surname" TransformationClaimType="inputClaim2"/>
+            </InputClaims>
+            <InputParameters>
+                <InputParameter Id="stringFormat" DataType="string" Value="{0} ({1})"/>
+            </InputParameters>
+            <OutputClaims>
+                <OutputClaim ClaimTypeReferenceId="displayName" TransformationClaimType="outputClaim"/>
+            </OutputClaims>
+        </ClaimsTransformation>
+
+        <ClaimsTransformation Id="CreateMessageTransformation" TransformationMethod="FormatStringClaim">
+            <InputClaims>
+                <InputClaim ClaimTypeReferenceId="displayName" TransformationClaimType="inputClaim"/>
+            </InputClaims>
+            <InputParameters>
+                <InputParameter Id="stringFormat" DataType="string" Value="Hello {0}"/>
+            </InputParameters>
+            <OutputClaims>
+                <OutputClaim ClaimTypeReferenceId="message" TransformationClaimType="outputClaim"/>
+            </OutputClaims>
+        </ClaimsTransformation>
+    </ClaimsTransformations>
+    <ContentDefinitions>
+        <ContentDefinition Id="SelfAssertedContentDefinition">
+            <LoadUri>~/tenant/default/selfAsserted.cshtml</LoadUri>
+            <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+            <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:1.2.0</DataUri>
+        </ContentDefinition>
+    </ContentDefinitions>
   </BuildingBlocks>
 
   <ClaimsProviders>
+
     <ClaimsProvider>
       <!-- The technical profile(s) defined in this section is required by the framework to be included in all policies. -->
       <DisplayName>Trustframework Policy Engine TechnicalProfiles</DisplayName>
@@ -34,6 +111,77 @@
           </Metadata>
         </TechnicalProfile>
       </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+        <!--
+        In order for an Object ID to be returned (this is required in an interactive profile) one of the journey steps must include it as an output claim. 
+        In this case, it is being done as a claims transformation without any input, but instead is generating a random value using a claims transformation.
+        -->
+        <DisplayName>Random Object ID Claim Generator Technical Profile</DisplayName>
+        <TechnicalProfiles>
+            <TechnicalProfile Id="RandomObjectIdClaimGenerator">
+                <!--
+                In order for an Object ID to be returned (this is required in an interactive profile) one of the journey steps must include it as an output claim. 
+                In this case, it is being done as a claims transformation without any input, but instead is generating a random value using a claims transformation.
+                -->
+                <DisplayName>Random Object ID Claim Generator Technical Profile</DisplayName>
+                <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.ClaimsTransformationProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                <OutputClaims>
+                <OutputClaim ClaimTypeReferenceId="objectId"/>
+                </OutputClaims>
+                <OutputClaimsTransformations>
+                <OutputClaimsTransformation ReferenceId="GenerateObjectIdTransformation"/>
+                </OutputClaimsTransformations>
+            </TechnicalProfile>
+        </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
+        <!--
+        The technical profile defined in this section generates the display name and message claims based on the user's input.
+        -->
+        <DisplayName>Claim Generator Technical Profiles</DisplayName>
+        <TechnicalProfiles>
+            <TechnicalProfile Id="UserInputMessageClaimGenerator">
+                <!--
+                Generates the content of the message claim by applying the relevant claims transformation
+                -->
+                <DisplayName>Display Name Claim Generator Technical Profile</DisplayName>
+                <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.ClaimsTransformationProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="displayName"/>
+                    <OutputClaim ClaimTypeReferenceId="message"/>
+                </OutputClaims>
+                <OutputClaimsTransformations>
+                    <OutputClaimsTransformation ReferenceId="CreateDisplayNameTransformation"/>
+                    <OutputClaimsTransformation ReferenceId="CreateMessageTransformation"/>
+                </OutputClaimsTransformations>
+            </TechnicalProfile>
+        </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+        <!--
+        The technical profile defined in this section allows a user to enter their first and last name, then composes the message text based on those entries.
+        -->
+        <DisplayName>Sample User Input Collection Technical Profiles</DisplayName>
+        <TechnicalProfiles>
+            <TechnicalProfile Id="UserInformationCollector">
+                <DisplayName>Collect Sample User Input Technical Profile</DisplayName>
+                <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                <Metadata>
+                    <Item Key="ContentDefinitionReferenceId">SelfAssertedContentDefinition</Item>
+                </Metadata>
+                <DisplayClaims>
+                    <DisplayClaim ClaimTypeReferenceId="givenName" Required="true"/>
+                    <DisplayClaim ClaimTypeReferenceId="surname"  Required="true"/>
+                </DisplayClaims>
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="givenName"/>
+                    <OutputClaim ClaimTypeReferenceId="surname"/>
+            </OutputClaims>
+            </TechnicalProfile>
+        </TechnicalProfiles>
     </ClaimsProvider>
 
     <ClaimsProvider>
@@ -65,9 +213,24 @@
 
   <UserJourneys>
     <UserJourney Id="HelloWorldJourney">
-      <OrchestrationSteps>
-        <OrchestrationStep Order="1" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-      </OrchestrationSteps>
+        <OrchestrationSteps>
+            <OrchestrationStep Order="1" Type="ClaimsExchange">
+                <ClaimsExchanges>
+                <ClaimsExchange Id="GetObjectIdClaimsExchange" TechnicalProfileReferenceId="RandomObjectIdClaimGenerator" />
+                </ClaimsExchanges>
+            </OrchestrationStep>
+            <OrchestrationStep Order="2" Type="ClaimsExchange">
+                <ClaimsExchanges>
+                <ClaimsExchange Id="GetUserInformationClaimsExchange" TechnicalProfileReferenceId="UserInformationCollector" />
+                </ClaimsExchanges>
+            </OrchestrationStep>
+            <OrchestrationStep Order="3" Type="ClaimsExchange">
+                <ClaimsExchanges>
+                <ClaimsExchange Id="GetMessageClaimsExchange" TechnicalProfileReferenceId="UserInputMessageClaimGenerator"/>
+                </ClaimsExchanges>
+            </OrchestrationStep>
+            <OrchestrationStep Order="4" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        </OrchestrationSteps>
     </UserJourney>
   </UserJourneys>
 

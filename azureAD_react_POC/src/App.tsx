@@ -21,29 +21,23 @@ const App = () => {
   const userData = getUserData();
 
   useEffect(() => {
-    if (userData?.name) {
-      setLoggedIn(true);
-    }
-  }, [userData]);
+		if (userData?.message) {
+			setLoggedIn(true);
+		}
+	}, [userData]);
 
-  function redirectToUserFlow() {
+	function redirectToUserFlow() {
 		// Replace the placeholder URL with your actual user flow URL
 		const userFlowUrl =
-			"https://shubhroPOC.b2clogin.com/shubhroPOC.onmicrosoft.com/oauth2/v2.0/authorize?p=B2C_1_POC_react&client_id=b0c6526a-68c7-4b61-91df-aa057da8a63a&nonce=defaultNonce&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2F&scope=openid&response_type=id_token&prompt=login";
+			"https://shubhroPOC.b2clogin.com/shubhroPOC.onmicrosoft.com/oauth2/v2.0/authorize?p=B2C_1A_HELLOWORLD_USERINPUT&client_id=b0c6526a-68c7-4b61-91df-aa057da8a63a&nonce=defaultNonce&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2F&scope=openid&response_type=id_token&prompt=login";
 
 		window.location.href = userFlowUrl;
 	}
-  
+
 	return (
 		<>
 			<div>
-				{loggedIn ? (
-					<h2>
-						Hey, {userData.name} ({userData.jobTitle})
-					</h2>
-				) : (
-					<></>
-				)}
+				{loggedIn ? <h2>{userData.message}</h2> : <></>}
 				<a
 					href="https://learn.microsoft.com/en-us/azure/active-directory-b2c/"
 					target="_blank"
