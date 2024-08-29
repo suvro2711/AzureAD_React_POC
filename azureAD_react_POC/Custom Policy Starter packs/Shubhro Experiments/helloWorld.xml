@@ -5,8 +5,8 @@
       xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
       PolicySchemaVersion="0.3.0.0"
       TenantId="shubhroPOC.onmicrosoft.com"
-      PolicyId="B2C_1A_Helloworld_UserInput"
-      PublicPolicyUri="http://shubhroPOC.onmicrosoft.com/B2C_1A_Helloworld_UserInput"
+      PolicyId="B2C_1A_Helloworld_CustomUI"
+      PublicPolicyUri="http://shubhroPOC.onmicrosoft.com/B2C_1A_Helloworld_CustomUI"
 >
 
   <BuildingBlocks>
@@ -90,7 +90,7 @@
     </ClaimsTransformations>
     <ContentDefinitions>
         <ContentDefinition Id="SelfAssertedContentDefinition">
-            <LoadUri>~/tenant/default/selfAsserted.cshtml</LoadUri>
+            <LoadUri>http://localhost:5173</LoadUri>
             <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
             <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:1.2.0</DataUri>
         </ContentDefinition>

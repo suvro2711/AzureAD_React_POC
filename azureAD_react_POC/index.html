@@ -4,10 +4,69 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    <title>Azure AD B2C</title>
   </head>
   <body>
+    <style>
+      .attrEntry {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+      }
+
+      .textInput {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+      }
+
+      .error {
+        color: red;
+        font-size: 12px;
+        margin-bottom: 5px;
+      }
+
+      .buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+      }
+
+      .verifying-modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        z-index: 9999;
+      }
+      .apiWrapper{
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        align-items: center;
+        /* height: 100vw; */
+        flex-direction: column;
+        padding-top: 10rem;
+    }
+    </style>
+    <script type="module" src="/src/main.tsx" async></script>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div class="apiWrapper" id="apiWrapper">
+      <div>
+        <a href="https://learn.microsoft.com/en-us/azure/active-directory-b2c/" target="_blank">
+            <img src="https://swimburger.net/media/0zcpmk1b/azure.jpg" class="logo" alt="Vite logo" style="width: 5rem;">
+        </a><a href="https://react.dev" target="_blank">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcR5U16C8yXgBpl7-Bc7Itjx3_LRl425zINA&s" class="logo react" alt="React logo" style="width: 5rem;">
+        </a>
+        <h1>Exploring Azure AD</h1>
+      </div>
+      <div id="api"></div>
+    </div>
   </body>
 </html>
